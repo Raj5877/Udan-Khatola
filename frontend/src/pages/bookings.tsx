@@ -1,7 +1,7 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Plane, Calendar, MapPin, ArrowLeft } from "lucide-react"
+import { Plane, Calendar, MapPin, ArrowLeft, User, TrendingUp } from "lucide-react"
 import { Link } from "react-router-dom"
 
 import { useEffect, useState } from "react";
@@ -11,8 +11,18 @@ import { useEffect, useState } from "react";
 export default function Bookings() {
 
   const [bookings, setBookings] = useState<any[]>([]);
+  const [userSummary, setUserSummary] = useState<any>(null);
 
-  useEffect(() => {
+  const loadData = () => {
+    fetch('http://localhost:3000/api/analytics/user-summary', {
+      headers: {
+        'Authorization': 'Bearer ' + localStorage.getItem('token')
+      }
+    })
+      .then(res => res.json())
+      .then(data => setUserSummary(data.summary))
+      .catch(err => console.error(err));
+
     fetch('http://localhost:3000/api/bookings', {
       headers: {
         'Authorization': 'Bearer ' + localStorage.getItem('token')
@@ -20,14 +30,17 @@ export default function Bookings() {
     })
       .then(res => res.json())
       .then(data => {
-        console.log("Bookings:", data);
-        setBookings(data);
+        setBookings(data.error ? [] : data);
       })
       .catch(err => console.error(err));
-  }, []);
-  const upcoming = bookings.filter(b => b.status !== 'COMPLETED');
-  const past = bookings.filter(b => b.status === 'COMPLETED');
+  };
 
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  const upcoming = bookings.filter(b => b.status === 'CONFIRMED');
+  const past = bookings.filter(b => b.status === 'COMPLETED');
   return (
     <div className="min-h-screen relative overflow-x-hidden selection:bg-white/30 selection:text-white">
       {/* Background Layer */}
@@ -52,6 +65,29 @@ export default function Bookings() {
             <p className="text-slate-400 mt-2 tracking-widest uppercase text-xs">Manage your digital passages</p>
           </div>
         </div>
+
+        {userSummary && (
+          <div className="mb-12 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Card className="bg-white/5 border-white/10">
+              <CardContent className="p-4 flex items-center gap-4">
+                <div className="p-3 bg-blue-500/20 rounded-xl"><User className="w-5 h-5 text-blue-400" /></div>
+                <div>
+                  <div className="text-xs text-slate-400 uppercase tracking-widest">Total SPENT</div>
+                  <div className="font-bold text-white text-xl">₹{userSummary.total_spent}</div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="bg-white/5 border-white/10">
+              <CardContent className="p-4 flex items-center gap-4">
+                <div className="p-3 bg-green-500/20 rounded-xl"><TrendingUp className="w-5 h-5 text-green-400" /></div>
+                <div>
+                  <div className="text-xs text-slate-400 uppercase tracking-widest">Flights Taken</div>
+                  <div className="font-bold text-white text-xl">{userSummary.total_bookings}</div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         <section className="space-y-12">
           <div>
@@ -90,18 +126,13 @@ export default function Bookings() {
                       <Button
                           onClick={() => {
                             fetch(`http://localhost:3000/api/bookings/${booking.id}/complete`, {
-                              method: 'PUT'
+                              method: 'PUT',
+                              headers: {
+                                'Authorization': 'Bearer ' + localStorage.getItem('token')
+                              }
                             })
-                              .then(() => {
-                                // refresh bookings
-                                return fetch('http://localhost:3000/api/bookings', {
-                                  headers: {
-                                    'Authorization': 'Bearer ' + localStorage.getItem('token')
-                                  }
-                                });
-                              })
-                              .then(res => res.json())
-                              .then(data => setBookings(data));
+                              .then(() => loadData())
+                              .catch(err => console.error(err));
                           }}
                           className="flex-1 md:flex-none bg-white text-slate-950 font-bold hover:bg-slate-200 uppercase tracking-widest text-[10px] h-10 px-6 rounded-lg transition-all"
                         >
@@ -109,6 +140,27 @@ export default function Bookings() {
                       </Button>
                       <Button variant="outline" className="flex-1 md:flex-none bg-slate-100 border-white/10 text-black hover:bg-slate-200 uppercase tracking-widest text-[10px] h-10 px-6 rounded-lg transition-all">
                         Boarding Pass
+                      </Button>
+                      <Button 
+                        onClick={() => {
+                          if (!confirm('Are you sure you want to cancel this booking?')) return;
+                          fetch(`http://localhost:3000/api/bookings/${booking.id}/cancel`, {
+                            method: 'PUT',
+                            headers: {
+                              'Authorization': 'Bearer ' + localStorage.getItem('token')
+                            }
+                          })
+                            .then(res => res.json())
+                            .then(data => {
+                              if(data.error) alert(data.error);
+                              else alert(data.message || 'Cancelled successfully');
+                              loadData();
+                            });
+                        }}
+                        variant="outline"
+                        className="flex-1 md:flex-none bg-red-500/10 text-red-500 border-red-500/30 hover:bg-red-500/20 uppercase tracking-widest text-[10px] h-10 px-6 rounded-lg transition-all"
+                      >
+                        Cancel
                       </Button>
                     </div>
                   </CardContent>

@@ -77,7 +77,7 @@ function App() {
         socialItems={socialItems}
         accentColor="#94a3b8"
         colors={['#0f172a', '#1e293b', '#334155']}
-        logoUrl="/vite.svg"
+        logoUrl=""
         isFixed={true}
       />
  
@@ -151,10 +151,10 @@ function App() {
                         <SelectTrigger className="pl-10 h-12 bg-white/20 backdrop-blur-md border border-white/20 text-black focus:bg-white/30 focus:border-white/40 focus:outline-none focus:ring-2 focus:ring-white/30 rounded-xl shadow-[0_8px_32px_rgba(0,0,0,0.1)] transition-all duration-300 data-[state=open]:bg-white/30 font-medium">
                           <SelectValue placeholder="1 Traveler" />
                         </SelectTrigger>
-                        <SelectContent className="bg-white border-slate-200">
-                          <SelectItem value="1" className="text-slate-900 cursor-pointer hover:bg-slate-100 focus:bg-slate-100">1 Passenger</SelectItem>
-                          <SelectItem value="2" className="text-slate-900 cursor-pointer hover:bg-slate-100 focus:bg-slate-100">2 Passengers</SelectItem>
-                          <SelectItem value="3" className="text-slate-900 cursor-pointer hover:bg-slate-100 focus:bg-slate-100">3+ Passengers</SelectItem>
+                        <SelectContent>
+                          <SelectItem value="1">1 Passenger</SelectItem>
+                          <SelectItem value="2">2 Passengers</SelectItem>
+                          <SelectItem value="3">3+ Passengers</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>

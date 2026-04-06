@@ -14,6 +14,14 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
+  const parseJwt = (token: string) => {
+    try {
+      return JSON.parse(atob(token.split('.')[1]));
+    } catch (e) {
+      return null;
+    }
+  };
+
   const handleLogin = async () => {
     try {
       const res = await fetch("http://localhost:3000/api/auth/login", {
@@ -39,13 +47,57 @@ export default function Login() {
 
       alert("Login successful");
 
-      // redirect to home
-      navigate("/");
+      const decoded = parseJwt(data.token);
+      
+      // redirect based on role
+      if (decoded?.role === "ADMIN") {
+        navigate("/admin");
+      } else {
+        navigate("/");
+      }
     } catch (err) {
       console.error(err);
       alert("Error logging in");
     }
   };
+
+  const renderForm = (submitLabel: string) => (
+    <div className="space-y-6">
+      {/* Email */}
+      <div>
+        <label className="text-xs text-slate-500">Email</label>
+        <div className="relative">
+          <Mail className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
+          <Input
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="traveler@example.com"
+            className="pl-10"
+          />
+        </div>
+      </div>
+
+      {/* Password */}
+      <div>
+        <label className="text-xs text-slate-500">Password</label>
+        <div className="relative">
+          <Lock className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
+          <Input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+            className="pl-10"
+          />
+        </div>
+      </div>
+
+      {/* Button */}
+      <Button onClick={handleLogin} className="w-full">
+        {submitLabel}
+      </Button>
+    </div>
+  );
 
   return (
     <div className="min-h-screen relative flex flex-col overflow-hidden selection:bg-white/30 selection:text-white">
@@ -98,7 +150,6 @@ export default function Login() {
 
           <CardContent>
             <Tabs defaultValue="passenger" className="w-full">
-
               {/* Tabs */}
               <TabsList className="grid grid-cols-2 mb-8">
                 <TabsTrigger value="passenger">
@@ -110,48 +161,13 @@ export default function Login() {
               </TabsList>
 
               {/* PASSENGER LOGIN */}
-              <TabsContent value="passenger" className="space-y-6">
-
-                {/* Email */}
-                <div>
-                  <label className="text-xs text-slate-500">Email</label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
-                    <Input
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      placeholder="traveler@example.com"
-                      className="pl-10"
-                    />
-                  </div>
-                </div>
-
-                {/* Password */}
-                <div>
-                  <label className="text-xs text-slate-500">Password</label>
-                  <div className="relative">
-                    <Lock className="absolute left-3 top-3 w-4 h-4 text-slate-400" />
-                    <Input
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="pl-10"
-                    />
-                  </div>
-                </div>
-
-                {/* Button */}
-                <Button onClick={handleLogin} className="w-full">
-                  Enter Dashboard
-                </Button>
+              <TabsContent value="passenger">
+                {renderForm("Enter Dashboard")}
               </TabsContent>
 
-              {/* ADMIN (placeholder for now) */}
+              {/* ADMIN LOGIN */}
               <TabsContent value="admin">
-                <p className="text-center text-slate-500 text-sm">
-                  Admin login coming soon
-                </p>
+                {renderForm("Access Admin Panel")}
               </TabsContent>
 
             </Tabs>

@@ -37,13 +37,13 @@ export function DatePicker({
                     <ChevronDownIcon className="w-4 h-4 text-slate-700 pointer-events-none shrink-0" />
                 </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 bg-white border-slate-200 shadow-2xl rounded-xl" align="start">
+            <PopoverContent className="w-auto p-4 bg-slate-900/80 backdrop-blur-[30px] border border-white/10 shadow-[0_25px_60px_rgba(0,0,0,0.7)] rounded-[2rem] overflow-hidden transform scale-90 origin-top" align="start">
                 <Calendar
                     mode="single"
                     selected={date}
                     onSelect={setDate}
                     autoFocus
-                    className="bg-white text-slate-900 rounded-lg shadow-xl"
+                    className="bg-transparent text-white p-4"
                 />
             </PopoverContent>
         </Popover>

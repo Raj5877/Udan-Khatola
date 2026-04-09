@@ -484,14 +484,6 @@ Core tables:
 - `flights`
 - `bookings`
 - `payment_orders`
-- `aircraft`
-- `flight_assignments`
-- `passenger_profiles`
-- `booking_passengers`
-- `fare_rules`
-- `flight_status_history`
-- `payment_transactions`
-- `refunds`
 
 Additional migration-managed tables:
 
@@ -763,8 +755,8 @@ Run:
 1. [backend/db/setup.sql](/C:/Users/boy65/OneDrive/Documents/Dbs_project/1/Udan-Khatola/backend/db/setup.sql)
 2. [backend/db/migration.sql](/C:/Users/boy65/OneDrive/Documents/Dbs_project/1/Udan-Khatola/backend/db/migration.sql)
 
-`setup.sql` creates the expanded relational schema and seed flights.  
-`migration.sql` adds indexes, audit/revenue tables, triggers, stored functions, and stored procedures.
+`setup.sql` creates the base schema and seed flights.  
+`migration.sql` adds indexes, audit/revenue tables, triggers, and stored procedures.
 
 ### 4. Start The Backend
 
@@ -1190,18 +1182,6 @@ erDiagram
     USERS ||--o{ PAYMENT_ORDERS : creates
     FLIGHTS ||--o{ PAYMENT_ORDERS : paid_for
     BOOKINGS o|--o{ PAYMENT_ORDERS : linked_after_verification
-    AIRCRAFT ||--o{ FLIGHT_ASSIGNMENTS : assigned_to
-    FLIGHTS ||--o{ FLIGHT_ASSIGNMENTS : has
-    USERS ||--o{ PASSENGER_PROFILES : owns
-    BOOKINGS ||--o{ BOOKING_PASSENGERS : contains
-    PASSENGER_PROFILES ||--o{ BOOKING_PASSENGERS : travels_as
-    FLIGHTS ||--o{ FARE_RULES : defines
-    FLIGHTS ||--o{ FLIGHT_STATUS_HISTORY : tracks
-    USERS o|--o{ FLIGHT_STATUS_HISTORY : updates
-    PAYMENT_ORDERS ||--o{ PAYMENT_TRANSACTIONS : produces
-    BOOKINGS ||--o{ REFUNDS : may_generate
-    PAYMENT_ORDERS o|--o{ REFUNDS : may_reference
-    USERS o|--o{ REFUNDS : processed_by
     BOOKINGS ||--o{ BOOKING_AUDIT_LOG : generates
     FLIGHTS ||--o{ BOOKING_AUDIT_LOG : referenced_by
     USERS ||--o{ BOOKING_AUDIT_LOG : referenced_by
@@ -1254,93 +1234,6 @@ erDiagram
         INT booking_id FK
         TIMESTAMP created_at
         TIMESTAMP updated_at
-    }
-
-    AIRCRAFT {
-        INT id PK
-        VARCHAR registration_number UK
-        VARCHAR model
-        VARCHAR manufacturer
-        INT seat_capacity
-        ENUM operational_status
-        TIMESTAMP created_at
-    }
-
-    FLIGHT_ASSIGNMENTS {
-        INT id PK
-        INT flight_id FK
-        INT aircraft_id FK
-        VARCHAR terminal
-        VARCHAR gate_number
-        DATETIME boarding_time
-        ENUM assignment_status
-        TIMESTAMP created_at
-    }
-
-    PASSENGER_PROFILES {
-        INT id PK
-        INT user_id FK
-        VARCHAR full_name
-        ENUM gender
-        DATE date_of_birth
-        VARCHAR passport_number UK
-        VARCHAR nationality
-        VARCHAR phone
-        TIMESTAMP created_at
-    }
-
-    BOOKING_PASSENGERS {
-        INT id PK
-        INT booking_id FK
-        INT passenger_profile_id FK
-        VARCHAR seat_number
-        ENUM travel_class
-        VARCHAR meal_preference
-        VARCHAR special_assistance
-        VARCHAR ticket_number UK
-        TIMESTAMP created_at
-    }
-
-    FARE_RULES {
-        INT id PK
-        INT flight_id FK
-        ENUM fare_class
-        BOOLEAN refundable
-        DECIMAL cancellation_fee
-        DECIMAL reschedule_fee
-        INT baggage_allowance_kg
-        BOOLEAN meal_included
-        TIMESTAMP created_at
-    }
-
-    FLIGHT_STATUS_HISTORY {
-        INT id PK
-        INT flight_id FK
-        INT updated_by_user_id FK
-        ENUM status
-        VARCHAR remarks
-        TIMESTAMP created_at
-    }
-
-    PAYMENT_TRANSACTIONS {
-        INT id PK
-        INT payment_order_id FK
-        ENUM transaction_type
-        VARCHAR gateway_reference
-        INT amount
-        ENUM transaction_status
-        TIMESTAMP processed_at
-    }
-
-    REFUNDS {
-        INT id PK
-        INT booking_id FK
-        INT payment_order_id FK
-        INT processed_by_user_id FK
-        DECIMAL refund_amount
-        VARCHAR refund_reason
-        ENUM refund_status
-        TIMESTAMP created_at
     }
 
     BOOKING_AUDIT_LOG {

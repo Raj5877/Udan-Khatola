@@ -179,6 +179,93 @@
     gap: 1.25rem;
 }
 
+.sm-authPanel {
+    margin-top: 0.75rem;
+}
+
+.sm-authCard {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.85rem;
+    padding: 1rem;
+    border-radius: 1.25rem;
+    border: 1px solid rgba(15, 23, 42, 0.08);
+    background: linear-gradient(135deg, rgba(148, 163, 184, 0.14), rgba(15, 23, 42, 0.04));
+}
+
+.sm-authCard-guest {
+    align-items: flex-start;
+}
+
+.sm-authIcon {
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    background: rgba(15, 23, 42, 0.08);
+    color: var(--sm-accent, #5227ff);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 42px;
+}
+
+.sm-authCopy {
+    min-width: 0;
+    flex: 1;
+}
+
+.sm-authEyebrow {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.28em;
+    color: var(--sm-accent, #5227ff);
+    margin-bottom: 0.35rem;
+}
+
+.sm-authName {
+    font-size: 0.98rem;
+    font-weight: 600;
+    color: #0f172a;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+.sm-authRole {
+    margin-top: 0.2rem;
+    font-size: 0.75rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #64748b;
+}
+
+.sm-authAction {
+    border: none;
+    background: #0f172a;
+    color: #fff;
+    border-radius: 999px;
+    padding: 0.7rem 1rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: background 0.2s ease;
+    margin-left: auto;
+}
+
+.sm-authAction:hover {
+    background: #1e293b;
+}
+
+@media (max-width: 640px) {
+    .sm-authAction {
+        width: 100%;
+        justify-content: center;
+        margin-left: 0;
+    }
+}
+
 .sm-socials {
     margin-top: auto;
     padding-top: 2rem;

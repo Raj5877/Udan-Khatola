@@ -1,7 +1,9 @@
 import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { gsap } from 'gsap';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { LogOut, ShieldCheck, UserRound } from 'lucide-react';
 import './StaggeredMenu.css';
+import { clearAuth, getAuthUser } from '@/lib/auth';
 
 export interface StaggeredMenuItem {
     label: string;
@@ -51,6 +53,10 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
     onMenuOpen,
     onMenuClose
 }: StaggeredMenuProps) => {
+    const navigate = useNavigate();
+    const user = getAuthUser();
+    const email = localStorage.getItem('auth_email');
+    const name = localStorage.getItem('auth_name');
     const [open, setOpen] = useState(false);
     const openRef = useRef(false);
     const panelRef = useRef<HTMLDivElement | null>(null);
@@ -361,6 +367,12 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
         }
     }, [playClose, animateIcon, animateColor, animateText, onMenuClose]);
 
+    const handleLogout = useCallback(() => {
+        clearAuth();
+        closeMenu();
+        navigate('/login');
+    }, [closeMenu, navigate]);
+
     React.useEffect(() => {
         if (!closeOnClickAway || !open) return;
 
@@ -464,6 +476,34 @@ export const StaggeredMenu: React.FC<StaggeredMenuProps> = ({
                             </li>
                         )}
                     </ul>
+                    <div className="sm-authPanel" aria-label="Authentication panel">
+                        {user ? (
+                            <div className="sm-authCard">
+                                <div className="sm-authIcon">
+                                    {user.role === 'ADMIN' ? <ShieldCheck size={18} /> : <UserRound size={18} />}
+                                </div>
+                                <div className="sm-authCopy">
+                                    <div className="sm-authEyebrow">Logged In</div>
+                                    <div className="sm-authName">{name || email || 'Authenticated User'}</div>
+                                    <div className="sm-authRole">{user.role}</div>
+                                </div>
+                                <button type="button" className="sm-authAction" onClick={handleLogout}>
+                                    <LogOut size={16} />
+                                    Logout
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="sm-authCard sm-authCard-guest">
+                                <div className="sm-authIcon">
+                                    <UserRound size={18} />
+                                </div>
+                                <div className="sm-authCopy">
+                                    <div className="sm-authEyebrow">Guest Mode</div>
+                                    <div className="sm-authName">Login or sign up to book flights</div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
                     {displaySocials && socialItems && socialItems.length > 0 && (
                         <div className="sm-socials" aria-label="Social links">
                             <h3 className="sm-socials-title">Socials</h3>

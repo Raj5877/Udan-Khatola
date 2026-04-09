@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS flights (
   source VARCHAR(100) NOT NULL,
   destination VARCHAR(100) NOT NULL,
   departure_time DATETIME NOT NULL,
-  arrival_time DATETIME NULL,
+  arrival_time DATETIME NOT NULL,
   price DECIMAL(10,2) NOT NULL,
   available_seats INT NOT NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP

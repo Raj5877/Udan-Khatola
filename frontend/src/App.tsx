@@ -8,12 +8,8 @@ import { DatePicker } from "@/components/ui/date-picker"
 import { Plane, Users, MapPin, Search, Calendar as CalendarIcon } from "lucide-react"
 import ElasticSlider from '@/components/ui/elastic-slider'
 import { useState, useEffect } from 'react'
-
-const menuItems = [
-  { label: 'Home', ariaLabel: 'Home', link: '/' },
-  { label: 'My Bookings', ariaLabel: 'My Bookings', link: '/bookings' },
-  { label: 'Login', ariaLabel: 'Login', link: '/login' },
-]
+import { useNavigate } from 'react-router-dom'
+import { getAuthUser } from './lib/auth'
 
 
 
@@ -32,18 +28,34 @@ const socialItems = [
 
 type Flight = {
   id: number;
+  flight_number: string;
   source: string;
   destination: string;
   price: number;
+  available_seats: number;
 };
 
 function App() {
+  const navigate = useNavigate();
+  const authUser = getAuthUser();
   const [maxPrice, setMaxPrice] = useState<number | null>(null);
   const [flights, setFlights] = useState<Flight[]>([]);
   const [date, setDate] = useState<Date>()
   const [origin, setOrigin] = useState('')
   const [destination, setDestination] = useState('')
-            
+  const menuItems = [
+    { label: 'Home', ariaLabel: 'Home', link: '/' },
+    { label: 'My Bookings', ariaLabel: 'My Bookings', link: '/bookings' },
+    ...(authUser?.role === 'ADMIN'
+      ? [{ label: 'Admin', ariaLabel: 'Admin', link: '/admin' }]
+      : []),
+    ...(!authUser
+      ? [
+          { label: 'Login', ariaLabel: 'Login', link: '/login' },
+          { label: 'Sign Up', ariaLabel: 'Sign Up', link: '/login?mode=signup' }
+        ]
+      : [])
+  ];
 
   useEffect(() => {
   fetch('http://localhost:3000/api/flights')
@@ -240,7 +252,7 @@ function App() {
         {/* Top Section */}
         <div className="flex justify-between items-start">
           <Badge className="bg-white/5 text-slate-400 border-white/5 font-mono px-3 py-1 text-[10px] tracking-widest">
-            AIR INDIA
+            {flight.flight_number}
           </Badge>
           <div className="text-right">
             <div className="text-3xl font-black text-slate-500">₹{flight.price}</div>
@@ -284,33 +296,24 @@ function App() {
 
       </div>
 
+        <div className="flex items-center justify-between rounded-xl border border-white/5 bg-white/5 px-3 py-2 text-xs uppercase tracking-[0.2em] text-slate-400">
+          <span>Available Seats</span>
+          <span className="font-bold text-slate-200">{flight.available_seats}</span>
+        </div>
+
         {/* Button */}
         <Button
           className="w-full bg-slate-200 border border-white/20 text-black hover:bg-black hover:text-white h-12 rounded-xl uppercase transition-all"
           onClick={() => {
-            fetch('http://localhost:3000/api/book', {
-              method: 'POST',
-              headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + localStorage.getItem('token')
-              },
-              body: JSON.stringify({
-                flight_id: flight.id
-              })
-            })
-              .then(() => {
-                alert("Booking Successful!");
-                fetch('http://localhost:3000/api/bookings', {
-                  headers: {
-                    'Authorization': 'Bearer ' + localStorage.getItem('token')
-                  }
-                })
-                  .then(res => res.json())
-              })
-              .catch(err => console.error(err));
+            if (!localStorage.getItem('token')) {
+              navigate('/login');
+              return;
+            }
+
+            navigate(`/book/${flight.id}`);
           }}
         >
-          BOOK TICKET
+          BOOK WITH PAYMENT
         </Button>
 
       </div>
